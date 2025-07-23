@@ -1,4 +1,3 @@
-// frontend/src/pages/ProjectPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectAPI, materialAPI } from '../api/axios';
@@ -16,6 +15,27 @@ const ProjectPage = () => {
   const [loading, setLoading] = useState(true);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
 
+  // Format currency for MRU (Mauritanian Ouguiya)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('fr-MR', {
+      style: 'currency',
+      currency: 'MRU',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
+  // Translate status to French
+  const getStatusText = (status) => {
+    const statusMap = {
+      'planning': 'Planification',
+      'in-progress': 'En Cours',
+      'completed': 'Terminé',
+      'on-hold': 'En Attente'
+    };
+    return statusMap[status] || status;
+  };
+
   useEffect(() => {
     if (id) {
       fetchProject();
@@ -29,7 +49,7 @@ const ProjectPage = () => {
       setProject(response.data.data || response.data);
     } catch (error) {
       toast.error('Échec du chargement du projet');
-      console.error('Error fetching project:', error);
+      console.error('Erreur lors du chargement du projet:', error);
       navigate('/');
     }
   };
@@ -47,7 +67,7 @@ const ProjectPage = () => {
       }
     } catch (error) {
       toast.error('Échec du chargement des matériaux');
-      console.error('Error fetching materials:', error);
+      console.error('Erreur lors du chargement des matériaux:', error);
       setMaterials([]);
     } finally {
       setLoading(false);
@@ -67,11 +87,11 @@ const ProjectPage = () => {
       fetchMaterials();
       fetchProject();
     } catch (error) {
-      console.error('Error adding material:', error);
+      console.error('Erreur lors de l\'ajout du matériau:', error);
       
       if (error.response?.data?.errors) {
         const errorMessages = error.response.data.errors.map(err => err.msg).join(', ');
-        toast.error('Erreur de validation: ' + errorMessages);
+        toast.error('Erreurs de validation: ' + errorMessages);
       } else if (error.response?.data?.message) {
         toast.error('Erreur: ' + error.response.data.message);
       } else {
@@ -81,7 +101,7 @@ const ProjectPage = () => {
   };
 
   const handleMaterialDelete = async (materialId) => {
-    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce matériau ?')) {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce matériau ? Cette action est irréversible.')) {
       return;
     }
 
@@ -92,7 +112,7 @@ const ProjectPage = () => {
       fetchProject();
     } catch (error) {
       toast.error('Échec de la suppression du matériau');
-      console.error('Error deleting material:', error);
+      console.error('Erreur lors de la suppression du matériau:', error);
     }
   };
 
@@ -118,7 +138,7 @@ const ProjectPage = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <strong>Erreur:</strong> Aucun ID de projet trouvé dans l'URL
+          <strong>Erreur:</strong> Aucun identifiant de projet trouvé dans l'URL
         </div>
       </div>
     );
@@ -131,12 +151,12 @@ const ProjectPage = () => {
         className="flex items-center gap-2 text-blue-600 mb-6 hover:text-blue-800 transition-colors"
       >
         <ArrowLeft className="h-5 w-5" />
-        Retour aux Projets
+        Retour à la liste des projets
       </button>
 
       {project && (
         <>
-          {/* Project Header */}
+          {/* En-tête du projet */}
           <div className="card mb-8">
             <div className="card-header">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
@@ -158,7 +178,7 @@ const ProjectPage = () => {
                 <div>
                   <p className="text-sm text-gray-600">Statut</p>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status || project.statut)}`}>
-                    {(project.status || project.statut || 'planning').replace('-', ' ')}
+                    {getStatusText(project.status || project.statut || 'planning')}
                   </span>
                 </div>
               </div>
@@ -168,7 +188,7 @@ const ProjectPage = () => {
                 <div>
                   <p className="text-sm text-gray-600">Coût Total</p>
                   <p className="font-medium">
-                    {(project.totalCost || project.coutTotal || 0).toLocaleString()} €
+                    {formatCurrency(project.totalCost || project.coutTotal)}
                   </p>
                 </div>
               </div>
@@ -188,37 +208,38 @@ const ProjectPage = () => {
               onClick={() => setShowMaterialForm(true)}
               className="btn btn-primary"
             >
-              Ajouter un Matériau
+              + Ajouter un Matériau
             </button>
           </div>
 
-          {/* Materials Section */}
+          {/* Section des matériaux */}
           <div className="card">
             <div className="card-header flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-900">Matériaux</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Liste des Matériaux</h3>
               <button
                 onClick={() => setShowMaterialForm(true)}
                 className="btn btn-primary"
               >
-                Ajouter un Matériau
+                + Nouveau Matériau
               </button>
             </div>
             
             <div className="card-content">
               {materials.length === 0 ? (
                 <div className="text-center py-12">
-                  <p className="text-gray-600 mb-4">Aucun matériau ajouté</p>
+                  <p className="text-gray-600 mb-4">Aucun matériau n'a été ajouté à ce projet</p>
                   <button
                     onClick={() => setShowMaterialForm(true)}
                     className="btn btn-primary"
                   >
-                    Ajouter le Premier Matériau
+                    Ajouter le premier matériau
                   </button>
                 </div>
               ) : (
                 <MaterialList
                   materials={materials}
                   onDelete={handleMaterialDelete}
+                  formatCurrency={formatCurrency}
                 />
               )}
             </div>
@@ -226,14 +247,15 @@ const ProjectPage = () => {
         </>
       )}
 
-      {/* Material Form Modal */}
+      {/* Modal du formulaire de matériau */}
       {showMaterialForm && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <MaterialForm
               projectId={id}
               onSubmit={handleMaterialCreate}
               onCancel={() => setShowMaterialForm(false)}
+              formatCurrency={formatCurrency}
             />
           </div>
         </div>
