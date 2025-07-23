@@ -1,16 +1,15 @@
 const Material = require('../models/Material');
 const Project = require('../models/Project');
 const { validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 
 const materialController = {
   // Get all materials for a project
   getMaterialsByProject: async (req, res) => {
     try {
       const { projectId } = req.params;
-      
-      const materials = await Material.find({ projectId })
-        .sort({ createdAt: -1 });
-      
+      const materials = await Material.find({ projectId }).sort({ createdAt: -1 });
+
       res.json({
         success: true,
         data: materials,
@@ -30,7 +29,7 @@ const materialController = {
     try {
       const material = await Material.findById(req.params.id)
         .populate('projectId', 'name location');
-      
+
       if (!material) {
         return res.status(404).json({
           success: false,
@@ -63,8 +62,9 @@ const materialController = {
         });
       }
 
-      // Check if project exists
-      const project = await Project.findById(req.body.projectId);
+      const { projectId, name, unit, pricePerUnit, quantity, supplier, description, category } = req.body;
+
+      const project = await Project.findById(projectId);
       if (!project) {
         return res.status(404).json({
           success: false,
@@ -72,25 +72,27 @@ const materialController = {
         });
       }
 
+      const totalPrice = pricePerUnit * quantity;
+
       const material = new Material({
-        projectId: req.body.projectId,
-        name: req.body.name,
-        unit: req.body.unit,
-        pricePerUnit: req.body.pricePerUnit,
-        quantity: req.body.quantity,
-        supplier: req.body.supplier,
-        description: req.body.description,
-        category: req.body.category
+        projectId,
+        name,
+        unit,
+        pricePerUnit,
+        quantity,
+        supplier,
+        description,
+        category,
+        totalPrice
       });
 
       const savedMaterial = await material.save();
-      
-      // Add material to project's materials array
+
       await Project.findByIdAndUpdate(
-        req.body.projectId,
+        projectId,
         { $push: { materials: savedMaterial._id } }
       );
-      
+
       res.status(201).json({
         success: true,
         data: savedMaterial,
@@ -117,16 +119,20 @@ const materialController = {
         });
       }
 
+      const { name, unit, pricePerUnit, quantity, supplier, description, category } = req.body;
+      const totalPrice = pricePerUnit * quantity;
+
       const material = await Material.findByIdAndUpdate(
         req.params.id,
         {
-          name: req.body.name,
-          unit: req.body.unit,
-          pricePerUnit: req.body.pricePerUnit,
-          quantity: req.body.quantity,
-          supplier: req.body.supplier,
-          description: req.body.description,
-          category: req.body.category
+          name,
+          unit,
+          pricePerUnit,
+          quantity,
+          supplier,
+          description,
+          category,
+          totalPrice
         },
         { new: true, runValidators: true }
       );
@@ -156,7 +162,7 @@ const materialController = {
   deleteMaterial: async (req, res) => {
     try {
       const material = await Material.findById(req.params.id);
-      
+
       if (!material) {
         return res.status(404).json({
           success: false,
@@ -164,13 +170,11 @@ const materialController = {
         });
       }
 
-      // Remove material from project's materials array
       await Project.findByIdAndUpdate(
         material.projectId,
         { $pull: { materials: material._id } }
       );
-      
-      // Delete the material
+
       await Material.findByIdAndDelete(req.params.id);
 
       res.json({
@@ -190,9 +194,10 @@ const materialController = {
   getMaterialStats: async (req, res) => {
     try {
       const { projectId } = req.params;
-      
+      const objectId = new mongoose.Types.ObjectId(projectId);
+
       const stats = await Material.aggregate([
-        { $match: { projectId: require('mongoose').Types.ObjectId(projectId) } },
+        { $match: { projectId: objectId } },
         {
           $group: {
             _id: '$category',
@@ -205,8 +210,8 @@ const materialController = {
       ]);
 
       const totalMaterials = await Material.countDocuments({ projectId });
-      const totalCost = await Material.aggregate([
-        { $match: { projectId: require('mongoose').Types.ObjectId(projectId) } },
+      const totalCostAggregate = await Material.aggregate([
+        { $match: { projectId: objectId } },
         { $group: { _id: null, total: { $sum: '$totalPrice' } } }
       ]);
 
@@ -214,7 +219,7 @@ const materialController = {
         success: true,
         data: {
           totalMaterials,
-          totalCost: totalCost[0]?.total || 0,
+          totalCost: totalCostAggregate[0]?.total || 0,
           categoryBreakdown: stats
         }
       });
