@@ -1,0 +1,32 @@
+{
+  "name": "construction-backend",
+  "version": "1.0.0",
+  "description": "Construction Project Management Backend",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.4",
+    "pdfkit": "^0.13.0",
+    "pdfkit-table": "^0.1.99"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "keywords": [
+    "construction",
+    "project",
+    "management"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
