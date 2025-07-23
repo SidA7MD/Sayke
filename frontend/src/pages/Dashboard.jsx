@@ -23,7 +23,7 @@ const Dashboard = () => {
       const response = await projectAPI.getAll();
       setProjects(response.data.data);
     } catch (error) {
-      toast.error('Failed to fetch projects');
+      toast.error('Échec du chargement des projets');
       console.error('Error fetching projects:', error);
     } finally {
       setLoading(false);
@@ -42,12 +42,12 @@ const Dashboard = () => {
   const handleProjectCreate = async (projectData) => {
     try {
       await projectAPI.create(projectData);
-      toast.success('Project created successfully');
+      toast.success('Projet créé avec succès');
       setShowForm(false);
       fetchProjects();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to create project');
+      toast.error(error.response?.data?.error || 'Échec de la création du projet');
       console.error('Error creating project:', error);
     }
   };
@@ -55,27 +55,27 @@ const Dashboard = () => {
   const handleProjectUpdate = async (id, projectData) => {
     try {
       await projectAPI.update(id, projectData);
-      toast.success('Project updated successfully');
+      toast.success('Projet mis à jour avec succès');
       fetchProjects();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to update project');
+      toast.error(error.response?.data?.error || 'Échec de la mise à jour du projet');
       console.error('Error updating project:', error);
     }
   };
 
   const handleProjectDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this project? This will also delete all associated materials.')) {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce projet ? Cela supprimera également tous les matériaux associés.')) {
       return;
     }
 
     try {
       await projectAPI.delete(id);
-      toast.success('Project deleted successfully');
+      toast.success('Projet supprimé avec succès');
       fetchProjects();
       fetchStats();
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Failed to delete project');
+      toast.error(error.response?.data?.error || 'Échec de la suppression du projet');
       console.error('Error deleting project:', error);
     }
   };
@@ -90,6 +90,16 @@ const Dashboard = () => {
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
 
+  const getStatusText = (status) => {
+    const statusTexts = {
+      planning: 'Planification',
+      'in-progress': 'En cours',
+      completed: 'Terminé',
+      'on-hold': 'En attente'
+    };
+    return statusTexts[status] || status;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -100,34 +110,34 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+      {/* En-tête */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
               <Building className="h-8 w-8 text-blue-600" />
-              Construction Manager
+              Gestionnaire de Construction
             </h1>
-            <p className="text-gray-600 mt-2">Manage your construction projects and materials</p>
+            <p className="text-gray-600 mt-2">Gérez vos projets de construction et matériaux</p>
           </div>
           <button
             onClick={() => setShowForm(true)}
             className="btn btn-primary flex items-center gap-2"
           >
             <Plus className="h-5 w-5" />
-            New Project
+            Nouveau Projet
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Cartes de Statistiques */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="card">
             <div className="card-content">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Projects</p>
+                  <p className="text-sm text-gray-600">Total des Projets</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalProjects}</p>
                 </div>
                 <Building className="h-8 w-8 text-blue-600" />
@@ -139,9 +149,9 @@ const Dashboard = () => {
             <div className="card-content">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total Value</p>
+                  <p className="text-sm text-gray-600">Valeur Totale</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${stats.totalValue.toLocaleString()}
+                    {stats.totalValue.toLocaleString()} MRU
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
@@ -153,9 +163,9 @@ const Dashboard = () => {
             <div className="card-content">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Active Projects</p>
+                  <p className="text-sm text-gray-600">Projets Actifs</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.statusBreakdown.find(s => s._id === 'in-progress')?.count || 0}
+                    {stats.statusBreakdown?.find(s => s._id === 'in-progress')?.count || 0}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-orange-600" />
@@ -165,22 +175,22 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Projects List */}
+      {/* Liste des Projets */}
       <div className="card">
         <div className="card-header">
-          <h2 className="text-xl font-semibold text-gray-900">Projects</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Projets</h2>
         </div>
         <div className="card-content">
           {projects.length === 0 ? (
             <div className="text-center py-12">
               <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No projects yet</h3>
-              <p className="text-gray-600 mb-4">Get started by creating your first construction project</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun projet pour le moment</h3>
+              <p className="text-gray-600 mb-4">Commencez par créer votre premier projet de construction</p>
               <button
                 onClick={() => setShowForm(true)}
                 className="btn btn-primary"
               >
-                Create Project
+                Créer un Projet
               </button>
             </div>
           ) : (
@@ -190,12 +200,13 @@ const Dashboard = () => {
               onDelete={handleProjectDelete}
               onView={(id) => navigate(`/project/${id}`)}
               getStatusColor={getStatusColor}
+              getStatusText={getStatusText}
             />
           )}
         </div>
       </div>
 
-      {/* Project Form Modal */}
+      {/* Modal du Formulaire de Projet */}
       {showForm && (
         <div className="modal-overlay">
           <div className="modal-content">
