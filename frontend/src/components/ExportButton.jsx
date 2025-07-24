@@ -9,7 +9,6 @@ const ExportButton = ({ projectId, projectName }) => {
 
   const downloadFile = (blob, filename) => {
     try {
-      // Check if blob is valid
       if (!blob || blob.size === 0) {
         throw new Error('Invalid file data received');
       }
@@ -20,12 +19,10 @@ const ExportButton = ({ projectId, projectName }) => {
       link.download = filename;
       link.style.display = 'none';
       
-      // Add to DOM, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      // Clean up the URL
       setTimeout(() => window.URL.revokeObjectURL(url), 100);
       
       return true;
@@ -66,7 +63,6 @@ const ExportButton = ({ projectId, projectName }) => {
         dataSize: response.data?.size || 'unknown'
       });
       
-      // Verify we got a PDF blob
       if (!response.data) {
         throw new Error('No data received from server');
       }
@@ -75,7 +71,6 @@ const ExportButton = ({ projectId, projectName }) => {
         console.warn('Unexpected content type:', response.data.type);
       }
       
-      // Download the file
       downloadFile(response.data, filename);
       
       toast.success(`${type === 'materials-list' ? 'Materials list' : 'Project report'} exported successfully`);
@@ -119,20 +114,22 @@ const ExportButton = ({ projectId, projectName }) => {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col w-full gap-2 sm:flex-row sm:w-auto">
       {/* Project Report Export */}
       <button
         onClick={() => handleExport('project-report')}
         disabled={isExporting}
         data-export-type="project"
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg transition-colors duration-200 disabled:cursor-not-allowed text-sm font-medium"
+        className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:bg-emerald-400 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:cursor-not-allowed text-sm font-medium min-h-[48px] w-full sm:w-auto"
       >
         {isExporting && exportType === 'project-report' ? (
-          <Loader className="h-4 w-4 animate-spin" />
+          <Loader className="w-4 h-4 animate-spin" />
         ) : (
-          <FileText className="h-4 w-4" />
+          <FileText className="w-4 h-4" />
         )}
-        {isExporting && exportType === 'project-report' ? 'Exporting...' : 'Export Report'}
+        <span className="whitespace-nowrap">
+          {isExporting && exportType === 'project-report' ? 'Exporting...' : 'Export Report'}
+        </span>
       </button>
 
       {/* Materials List Export */}
@@ -140,14 +137,16 @@ const ExportButton = ({ projectId, projectName }) => {
         onClick={() => handleExport('materials-list')}
         disabled={isExporting}
         data-export-type="materials"
-        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white rounded-lg transition-colors duration-200 disabled:cursor-not-allowed text-sm font-medium"
+        className="flex items-center justify-center gap-2 px-4 py-3 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 disabled:bg-teal-400 text-white rounded-xl shadow-md hover:shadow-lg transition-all duration-200 disabled:cursor-not-allowed text-sm font-medium min-h-[48px] w-full sm:w-auto"
       >
         {isExporting && exportType === 'materials-list' ? (
-          <Loader className="h-4 w-4 animate-spin" />
+          <Loader className="w-4 h-4 animate-spin" />
         ) : (
-          <List className="h-4 w-4" />
+          <List className="w-4 h-4" />
         )}
-        {isExporting && exportType === 'materials-list' ? 'Exporting...' : 'Export Materials'}
+        <span className="whitespace-nowrap">
+          {isExporting && exportType === 'materials-list' ? 'Exporting...' : 'Export Materials'}
+        </span>
       </button>
     </div>
   );

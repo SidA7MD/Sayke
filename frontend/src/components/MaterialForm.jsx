@@ -19,14 +19,12 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
     console.log('Raw form data:', data);
     console.log('Project ID:', projectId);
     
-    // Check if projectId exists
     if (!projectId) {
       console.error('ERROR: Project ID is missing!');
       alert('Erreur: ID du projet manquant');
       return;
     }
     
-    // Transform data to match backend expectations (English field names)
     const transformedData = {
       projectId: projectId,
       name: data.nom,
@@ -40,13 +38,11 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
     
     console.log('Transformed data being sent:', transformedData);
     
-    // Validate required fields
     if (!transformedData.name || !transformedData.category || !transformedData.quantity || !transformedData.unit || !transformedData.pricePerUnit) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
     
-    // Check if onSubmit function exists
     if (typeof onSubmit !== 'function') {
       console.error('ERROR: onSubmit is not a function!');
       alert('Erreur: fonction onSubmit manquante');
@@ -61,32 +57,34 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
-      <h3 className="text-xl font-semibold mb-4">Ajouter un Nouveau Matériau</h3>
+    <div className="max-w-4xl p-4 m-4 mx-auto bg-white shadow-xl rounded-2xl sm:p-6">
+      <h3 className="mb-6 text-xl font-bold text-center text-gray-900 sm:text-2xl">
+        Ajouter un Nouveau Matériau
+      </h3>
       
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         
         {/* Nom du matériau */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
             Nom du matériau *
           </label>
           <input
             {...register('nom', { required: 'Le nom est requis' })}
             placeholder="Entrez le nom du matériau"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
-          {errors.nom && <span className="text-red-500 text-sm mt-1">{errors.nom.message}</span>}
+          {errors.nom && <span className="block mt-1 text-sm text-red-500">{errors.nom.message}</span>}
         </div>
 
         {/* Catégorie */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
             Catégorie *
           </label>
           <select
             {...register('categorie', { required: 'La catégorie est requise' })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-base transition-all duration-200 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           >
             <option value="">Sélectionnez une catégorie</option>
             <option value="construction">Construction</option>
@@ -95,13 +93,13 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
             <option value="finishing">Finition</option>
             <option value="other">Autre</option>
           </select>
-          {errors.categorie && <span className="text-red-500 text-sm mt-1">{errors.categorie.message}</span>}
+          {errors.categorie && <span className="block mt-1 text-sm text-red-500">{errors.categorie.message}</span>}
         </div>
 
         {/* Quantité et Unité */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Quantité *
             </label>
             <input
@@ -112,18 +110,18 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               })}
               placeholder="Entrez la quantité"
               step="0.01"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
             />
-            {errors.quantite && <span className="text-red-500 text-sm mt-1">{errors.quantite.message}</span>}
+            {errors.quantite && <span className="block mt-1 text-sm text-red-500">{errors.quantite.message}</span>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-2 text-sm font-semibold text-gray-700">
               Unité *
             </label>
             <select
               {...register('unite', { required: "L'unité est requise" })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 text-base transition-all duration-200 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
             >
               <option value="">Sélectionnez une unité</option>
               <option value="sqm">m² (mètres carrés)</option>
@@ -135,13 +133,13 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               <option value="meter">mètre</option>
               <option value="piece">pièce</option>
             </select>
-            {errors.unite && <span className="text-red-500 text-sm mt-1">{errors.unite.message}</span>}
+            {errors.unite && <span className="block mt-1 text-sm text-red-500">{errors.unite.message}</span>}
           </div>
         </div>
 
         {/* Prix par unité */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
             Prix par unité (MRU) *
           </label>
           <input
@@ -152,52 +150,54 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               min: { value: 0.01, message: 'Le prix doit être supérieur à 0' }
             })}
             placeholder="Entrez le prix par unité"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
-          {errors.prixUnitaire && <span className="text-red-500 text-sm mt-1">{errors.prixUnitaire.message}</span>}
+          {errors.prixUnitaire && <span className="block mt-1 text-sm text-red-500">{errors.prixUnitaire.message}</span>}
         </div>
 
         {/* Fournisseur */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
             Fournisseur
           </label>
           <input
             {...register('fournisseur')}
             placeholder="Entrez le nom du fournisseur (optionnel)"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
         </div>
 
         {/* Calcul du coût total */}
-        <div className="p-4 bg-blue-50 rounded-md border border-blue-200">
-          <p className="font-medium text-blue-900 mb-1">Calcul du coût total :</p>
-          <div className="text-lg">
-            <span className="text-blue-700">{watchQuantite || 0}</span>
-            <span className="text-blue-600 mx-2">×</span>
-            <span className="text-blue-700">{watchPrixUnitaire || 0} MRU</span>
-            <span className="text-blue-600 mx-2">=</span>
-            <span className="font-bold text-blue-900">
-              {((watchQuantite || 0) * (watchPrixUnitaire || 0)).toFixed(2)} MRU
-            </span>
+        <div className="p-4 border-2 sm:p-6 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border-emerald-100">
+          <p className="mb-3 font-bold text-center text-emerald-900">Calcul du coût total :</p>
+          <div className="text-lg text-center sm:text-xl">
+            <div className="flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-4">
+              <span className="font-semibold text-emerald-700">{watchQuantite || 0}</span>
+              <span className="text-2xl text-emerald-600">×</span>
+              <span className="font-semibold text-emerald-700">{watchPrixUnitaire || 0} MRU</span>
+              <span className="text-2xl text-emerald-600">=</span>
+              <span className="text-xl font-bold text-emerald-900 sm:text-2xl">
+                {((watchQuantite || 0) * (watchPrixUnitaire || 0)).toFixed(2)} MRU
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
             Description / Notes
           </label>
           <textarea
             {...register('description')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            rows={3}
+            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 resize-none rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            rows={4}
             placeholder="Ajoutez une description ou des notes supplémentaires (optionnel)"
           />
         </div>
 
         {/* Boutons */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <div className="flex flex-col justify-end gap-3 pt-6 border-t border-gray-200 sm:flex-row">
           <button
             type="button"
             onClick={() => {
@@ -208,13 +208,13 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
                 console.error('onCancel is not a function');
               }
             }}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="w-full sm:w-auto px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200 text-base font-medium min-h-[48px]"
           >
             Annuler
           </button>
           <button
             type="submit"
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-auto px-6 py-3 text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-200 text-base font-medium min-h-[48px] shadow-lg hover:shadow-xl"
           >
             Ajouter le Matériau
           </button>
@@ -223,5 +223,4 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
     </div>
   );
 };
-
 export default MaterialForm;
