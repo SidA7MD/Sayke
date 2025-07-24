@@ -1,3 +1,4 @@
+// ProjectPage.jsx - Mobile Responsive with Green Theme
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { projectAPI, materialAPI } from '../api/axios';
@@ -171,6 +172,7 @@ const ProjectPage = () => {
               </div>
               
               <div className="p-4 sm:p-6">
+                {/* Basic Info Grid */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
                   <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
                     <MapPin className="flex-shrink-0 w-6 h-6 text-emerald-600" />
@@ -200,11 +202,123 @@ const ProjectPage = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Budget estimé - si présent */}
+                {project.budget && project.budget > 0 && (
+                  <div className="mt-6">
+                    <h4 className="mb-4 font-bold text-gray-900">💰 Analyse Budgétaire</h4>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                        <span className="flex-shrink-0 text-2xl text-blue-600">💰</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-blue-700">Budget Estimé</p>
+                          <p className="text-lg font-bold text-blue-800 break-words">
+                            {formatCurrency(project.budget)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl">
+                        <span className="flex-shrink-0 text-2xl text-emerald-600">💵</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-emerald-700">Coût Réel</p>
+                          <p className="text-lg font-bold break-words text-emerald-800">
+                            {formatCurrency(project.totalCost || 0)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-purple-50 rounded-xl">
+                        <span className="flex-shrink-0 text-2xl">📊</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-purple-700">Différence</p>
+                          <p className={`font-bold text-lg ${
+                            (project.totalCost || 0) > project.budget ? 'text-red-600' : 'text-green-600'
+                          }`}>
+                            {(project.totalCost || 0) > project.budget ? '+' : ''}
+                            {formatCurrency((project.totalCost || 0) - project.budget)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="p-4 mt-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700">Utilisation du budget</span>
+                        <span className="text-sm font-bold text-gray-900">
+                          {(((project.totalCost || 0) / project.budget) * 100).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="w-full h-3 bg-gray-200 rounded-full">
+                        <div
+                          className={`h-3 rounded-full transition-all duration-500 ${
+                            (project.totalCost || 0) > project.budget 
+                              ? 'bg-gradient-to-r from-red-400 to-red-600' 
+                              : 'bg-gradient-to-r from-emerald-400 to-emerald-600'
+                          }`}
+                          style={{ 
+                            width: `${Math.min(((project.totalCost || 0) / project.budget) * 100, 100)}%` 
+                          }}
+                        ></div>
+                      </div>
+                      <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
+                        <span>Budget: {formatCurrency(project.budget)}</span>
+                        <span>Réel: {formatCurrency(project.totalCost || 0)}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Dates du projet */}
+                {(project.startDate || project.endDate) && (
+                  <div className="mt-6">
+                    <h4 className="mb-4 font-bold text-gray-900">📅 Planning du Projet</h4>
+                    <div className="flex flex-col gap-3 text-sm sm:flex-row">
+                      {project.startDate && (
+                        <div className="flex items-center flex-1 gap-3 p-4 bg-blue-50 rounded-xl">
+                          <span className="text-2xl">🚀</span>
+                          <div>
+                            <p className="font-medium text-blue-700">Date de début</p>
+                            <p className="text-base font-bold text-blue-900">
+                              {new Date(project.startDate).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {project.endDate && (
+                        <div className="flex items-center flex-1 gap-3 p-4 bg-orange-50 rounded-xl">
+                          <span className="text-2xl">🏁</span>
+                          <div>
+                            <p className="font-medium text-orange-700">Date de fin prévue</p>
+                            <p className="text-base font-bold text-orange-900">
+                              {new Date(project.endDate).toLocaleDateString('fr-FR')}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      {project.startDate && project.endDate && (
+                        <div className="flex items-center flex-1 gap-3 p-4 bg-purple-50 rounded-xl">
+                          <span className="text-2xl">⏱️</span>
+                          <div>
+                            <p className="font-medium text-purple-700">Durée estimée</p>
+                            <p className="text-base font-bold text-purple-900">
+                              {Math.ceil((new Date(project.endDate) - new Date(project.startDate)) / (1000 * 60 * 60 * 24))} jours
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 
+                {/* Notes du projet */}
                 {(project.notes || project.description) && (
-                  <div className="p-4 mt-6 bg-gray-50 rounded-xl">
-                    <p className="mb-2 text-sm font-medium text-gray-600">Notes</p>
-                    <p className="leading-relaxed text-gray-800 whitespace-pre-line">{project.notes || project.description}</p>
+                  <div className="mt-6">
+                    <h4 className="mb-3 font-bold text-gray-900">📝 Notes du Projet</h4>
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <p className="leading-relaxed text-gray-800 whitespace-pre-line">{project.notes || project.description}</p>
+                    </div>
                   </div>
                 )}
               </div>
@@ -266,8 +380,8 @@ const ProjectPage = () => {
 
         {/* Material Form Modal */}
         {showMaterialForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-end justify-center p-0 bg-black bg-opacity-50 sm:items-center sm:p-4">
+            <div className="bg-white w-full h-full sm:h-auto sm:rounded-2xl sm:w-full sm:max-w-4xl sm:max-h-[95vh] overflow-y-auto">
               <MaterialForm
                 projectId={id}
                 onSubmit={handleMaterialCreate}
@@ -281,4 +395,5 @@ const ProjectPage = () => {
     </div>
   );
 };
+
 export default ProjectPage;

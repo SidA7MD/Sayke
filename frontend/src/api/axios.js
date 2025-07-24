@@ -1,4 +1,4 @@
-// frontend/src/api/axios.js
+// frontend/src/api/axios.js - Final Version with Budget & Dates Support
 import axios from 'axios';
 
 const api = axios.create({
@@ -9,7 +9,20 @@ const api = axios.create({
 // Add request interceptor for debugging
 api.interceptors.request.use(
   (config) => {
-    console.log('Making API request:', config.method?.toUpperCase(), config.url, config.data);
+    console.log('Making API request:', config.method?.toUpperCase(), config.url);
+    if (config.data) {
+      console.log('Request data:', config.data);
+      // Debug budget and dates specifically
+      if (config.data.budget !== undefined) {
+        console.log('🔍 Budget in request:', config.data.budget);
+      }
+      if (config.data.startDate !== undefined) {
+        console.log('🔍 StartDate in request:', config.data.startDate);
+      }
+      if (config.data.endDate !== undefined) {
+        console.log('🔍 EndDate in request:', config.data.endDate);
+      }
+    }
     return config;
   },
   (error) => {
@@ -22,6 +35,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     console.log('API response:', response.status, response.config.url);
+    // Debug budget and dates in response
+    if (response.data?.data?.budget !== undefined) {
+      console.log('🔍 Budget in response:', response.data.data.budget);
+    }
+    if (response.data?.data?.startDate !== undefined) {
+      console.log('🔍 StartDate in response:', response.data.data.startDate);
+    }
+    if (response.data?.data?.endDate !== undefined) {
+      console.log('🔍 EndDate in response:', response.data.data.endDate);
+    }
     return response;
   },
   (error) => {
@@ -33,16 +56,45 @@ api.interceptors.response.use(
 // Project endpoints
 export const projectAPI = {
   // Standard CRUD operations
-  getAll: () => api.get('/projects'),
-  get: (id) => api.get(`/projects/${id}`),
-  create: (data) => api.post('/projects', data),
-  update: (id, data) => api.put(`/projects/${id}`, data),
-  delete: (id) => api.delete(`/projects/${id}`),
-  getStats: () => api.get('/projects/stats'),
+  getAll: () => {
+    console.log('📋 Getting all projects...');
+    return api.get('/projects');
+  },
   
-  // PDF Export endpoints - Fixed to match backend routes
+  get: (id) => {
+    console.log('📋 Getting project:', id);
+    return api.get(`/projects/${id}`);
+  },
+  
+  create: (data) => {
+    console.log('📋 Creating project with data:', data);
+    console.log('💰 Budget:', data.budget);
+    console.log('📅 StartDate:', data.startDate);
+    console.log('📅 EndDate:', data.endDate);
+    return api.post('/projects', data);
+  },
+  
+  update: (id, data) => {
+    console.log('📋 Updating project:', id);
+    console.log('💰 Budget:', data.budget);
+    console.log('📅 StartDate:', data.startDate);
+    console.log('📅 EndDate:', data.endDate);
+    return api.put(`/projects/${id}`, data);
+  },
+  
+  delete: (id) => {
+    console.log('📋 Deleting project:', id);
+    return api.delete(`/projects/${id}`);
+  },
+  
+  getStats: () => {
+    console.log('📊 Getting project statistics...');
+    return api.get('/projects/stats');
+  },
+  
+  // PDF Export endpoints
   exportProjectPDF: (projectId) => {
-    console.log('Exporting project PDF for:', projectId);
+    console.log('📄 Exporting project PDF for:', projectId);
     return api.get(`/projects/${projectId}/export/project-report`, { 
       responseType: 'blob',
       timeout: 60000, // Extended timeout for PDF generation
@@ -53,7 +105,7 @@ export const projectAPI = {
   },
   
   exportMaterialsPDF: (projectId) => {
-    console.log('Exporting materials PDF for:', projectId);
+    console.log('📄 Exporting materials PDF for:', projectId);
     return api.get(`/projects/${projectId}/export/materials-list`, { 
       responseType: 'blob',
       timeout: 60000, // Extended timeout for PDF generation
@@ -88,37 +140,37 @@ export const projectAPI = {
 export const materialAPI = {
   // Get materials by project
   getByProject: (projectId) => {
-    console.log('materialAPI.getByProject called with:', projectId);
+    console.log('🧱 Getting materials for project:', projectId);
     return api.get(`/materials/project/${projectId}`);
   },
   
   // Get single material
   get: (materialId) => {
-    console.log('materialAPI.get called with:', materialId);
+    console.log('🧱 Getting material:', materialId);
     return api.get(`/materials/${materialId}`);
   },
   
   // Create material
   create: (data) => {
-    console.log('materialAPI.create called with:', data);
+    console.log('🧱 Creating material with data:', data);
     return api.post('/materials', data);
   },
   
   // Update material
   update: (materialId, data) => {
-    console.log('materialAPI.update called with:', materialId, data);
+    console.log('🧱 Updating material:', materialId, data);
     return api.put(`/materials/${materialId}`, data);
   },
   
   // Delete material
   delete: (materialId) => {
-    console.log('materialAPI.delete called with:', materialId);
+    console.log('🧱 Deleting material:', materialId);
     return api.delete(`/materials/${materialId}`);
   },
   
   // Get material statistics
   getStats: (projectId) => {
-    console.log('materialAPI.getStats called with:', projectId);
+    console.log('📊 Getting material stats for project:', projectId);
     return api.get(`/materials/project/${projectId}/stats`);
   },
 };
@@ -126,14 +178,20 @@ export const materialAPI = {
 // Utility function to handle file downloads
 export const downloadUtils = {
   downloadBlob: (blob, filename) => {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    try {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      console.log('✅ File downloaded successfully:', filename);
+    } catch (error) {
+      console.error('❌ Failed to download file:', error);
+      throw error;
+    }
   },
   
   generateFilename: (projectName, type, extension = 'pdf') => {
@@ -144,7 +202,7 @@ export const downloadUtils = {
 };
 
 // Debug: Log what's being exported
-console.log('API exports:', { 
+console.log('🚀 API module loaded with exports:', { 
   projectAPI: Object.keys(projectAPI), 
   materialAPI: Object.keys(materialAPI),
   downloadUtils: Object.keys(downloadUtils)

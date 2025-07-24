@@ -1,3 +1,4 @@
+// Dashboard.jsx - Mobile Responsive with Green Theme
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Building, MapPin, Calendar, DollarSign, TrendingUp, BarChart3 } from 'lucide-react';
@@ -11,6 +12,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
   const navigate = useNavigate();
 
   // Format currency for MRU (Mauritanian Ouguiya)
@@ -21,6 +23,13 @@ const Dashboard = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(amount || 0);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Non spécifiée';
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('fr-MR', options);
   };
 
   // Translate status to French
@@ -73,10 +82,31 @@ const Dashboard = () => {
     }
   };
 
-  const handleProjectUpdate = async (id, projectData) => {
+  const handleProjectEdit = (id, project) => {
+    // Transform project data to match form fields
+    const projectForEditing = {
+      nom: project.name || project.nom || '',
+      emplacement: project.location || project.emplacement || '',
+      description: project.description || '',
+      statut: project.status || project.statut || 'planning',
+      budget: project.budget || 0,
+      dateDebut: project.startDate ? project.startDate.split('T')[0] : '',
+      dateFin: project.endDate ? project.endDate.split('T')[0] : '',
+      notes: project.notes || ''
+    };
+    
+    setEditingProject({ id, data: projectForEditing });
+    setShowForm(true);
+  };
+
+  const handleProjectUpdate = async (projectData) => {
+    if (!editingProject) return;
+    
     try {
-      await projectAPI.update(id, projectData);
+      await projectAPI.update(editingProject.id, projectData);
       toast.success('Projet mis à jour avec succès');
+      setShowForm(false);
+      setEditingProject(null);
       fetchProjects();
       fetchStats();
     } catch (error) {
@@ -98,6 +128,19 @@ const Dashboard = () => {
     } catch (error) {
       toast.error(error.response?.data?.error || 'Échec de la suppression du projet');
       console.error('Erreur lors de la suppression du projet:', error);
+    }
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingProject(null);
+  };
+
+  const handleFormSubmit = (projectData) => {
+    if (editingProject) {
+      handleProjectUpdate(projectData);
+    } else {
+      handleProjectCreate(projectData);
     }
   };
 
@@ -176,7 +219,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <div className="p-4 bg-white border-2 border-gray-100 shadow-lg rounded-2xl sm:p-6 sm:col-span-2 lg:col-span-1">
+            <div className="p-4 bg-white border-2 border-gray-100 shadow-lg rounded-2xl sm:col-span-2 lg:col-span-1 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <p className="mb-1 text-sm font-medium text-gray-600">Projets en Cours</p>
@@ -225,12 +268,13 @@ const Dashboard = () => {
             ) : (
               <ProjectList
                 projects={projects}
-                onEdit={handleProjectUpdate}
+                onEdit={handleProjectEdit}
                 onDelete={handleProjectDelete}
                 onView={(id) => navigate(`/project/${id}`)}
                 getStatusColor={getStatusColor}
                 getStatusText={getStatusText}
                 formatCurrency={formatCurrency}
+                formatDate={formatDate}
               />
             )}
           </div>
@@ -238,11 +282,12 @@ const Dashboard = () => {
 
         {/* Project Form Modal */}
         {showForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-            <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-end justify-center p-0 bg-black bg-opacity-50 sm:items-center sm:p-4">
+            <div className="bg-white w-full h-full sm:h-auto sm:rounded-2xl sm:w-full sm:max-w-5xl sm:max-h-[95vh] overflow-y-auto">
               <ProjectForm
-                onSubmit={handleProjectCreate}
-                onCancel={() => setShowForm(false)}
+                initialData={editingProject?.data}
+                onSubmit={handleFormSubmit}
+                onCancel={handleFormCancel}
               />
             </div>
           </div>

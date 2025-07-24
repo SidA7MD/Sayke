@@ -1,3 +1,4 @@
+// MaterialList.jsx - Mobile Responsive with Green Theme
 import React from 'react';
 import { Trash2, Package, User, FileText, Tag } from 'lucide-react';
 

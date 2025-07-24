@@ -1,5 +1,7 @@
+// MaterialForm.jsx - Mobile Responsive with Green Theme
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { X } from 'lucide-react';
 
 const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
   const {
@@ -57,12 +59,32 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
   };
 
   return (
-    <div className="max-w-4xl p-4 m-4 mx-auto bg-white shadow-xl rounded-2xl sm:p-6">
-      <h3 className="mb-6 text-xl font-bold text-center text-gray-900 sm:text-2xl">
-        Ajouter un Nouveau Matériau
-      </h3>
+    <div className="h-full max-w-4xl mx-auto bg-white sm:rounded-2xl sm:shadow-xl">
+      {/* Mobile Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 sm:hidden">
+        <h3 className="text-lg font-bold text-gray-900">
+          Ajouter un Matériau
+        </h3>
+        <button
+          onClick={() => {
+            if (typeof onCancel === 'function') {
+              onCancel();
+            }
+          }}
+          className="p-2 text-gray-400 transition-colors hover:text-gray-600 rounded-xl"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Desktop Header - Hidden on mobile */}
+      <div className="hidden sm:block">
+        <h3 className="p-4 mb-6 text-xl font-bold text-center text-gray-900 sm:text-2xl sm:p-6">
+          Ajouter un Nouveau Matériau
+        </h3>
+      </div>
       
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="p-4 pb-20 space-y-4 sm:space-y-6 sm:p-6 sm:pb-6">
         
         {/* Nom du matériau */}
         <div>
@@ -72,7 +94,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
           <input
             {...register('nom', { required: 'Le nom est requis' })}
             placeholder="Entrez le nom du matériau"
-            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            className="w-full px-4 py-4 text-base transition-all duration-200 border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
           {errors.nom && <span className="block mt-1 text-sm text-red-500">{errors.nom.message}</span>}
         </div>
@@ -84,7 +106,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
           </label>
           <select
             {...register('categorie', { required: 'La catégorie est requise' })}
-            className="w-full px-4 py-3 text-base transition-all duration-200 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            className="w-full px-4 py-4 text-base transition-all duration-200 bg-white border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           >
             <option value="">Sélectionnez une catégorie</option>
             <option value="construction">Construction</option>
@@ -110,7 +132,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               })}
               placeholder="Entrez la quantité"
               step="0.01"
-              className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+              className="w-full px-4 py-4 text-base transition-all duration-200 border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
             />
             {errors.quantite && <span className="block mt-1 text-sm text-red-500">{errors.quantite.message}</span>}
           </div>
@@ -121,7 +143,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
             </label>
             <select
               {...register('unite', { required: "L'unité est requise" })}
-              className="w-full px-4 py-3 text-base transition-all duration-200 bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+              className="w-full px-4 py-4 text-base transition-all duration-200 bg-white border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
             >
               <option value="">Sélectionnez une unité</option>
               <option value="sqm">m² (mètres carrés)</option>
@@ -150,7 +172,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               min: { value: 0.01, message: 'Le prix doit être supérieur à 0' }
             })}
             placeholder="Entrez le prix par unité"
-            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            className="w-full px-4 py-4 text-base transition-all duration-200 border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
           {errors.prixUnitaire && <span className="block mt-1 text-sm text-red-500">{errors.prixUnitaire.message}</span>}
         </div>
@@ -163,7 +185,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
           <input
             {...register('fournisseur')}
             placeholder="Entrez le nom du fournisseur (optionnel)"
-            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            className="w-full px-4 py-4 text-base transition-all duration-200 border-2 border-gray-200 sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
           />
         </div>
 
@@ -176,7 +198,7 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
               <span className="text-2xl text-emerald-600">×</span>
               <span className="font-semibold text-emerald-700">{watchPrixUnitaire || 0} MRU</span>
               <span className="text-2xl text-emerald-600">=</span>
-              <span className="text-xl font-bold text-emerald-900 sm:text-2xl">
+              <span className="text-xl font-bold break-all text-emerald-900 sm:text-2xl">
                 {((watchQuantite || 0) * (watchPrixUnitaire || 0)).toFixed(2)} MRU
               </span>
             </div>
@@ -190,37 +212,40 @@ const MaterialForm = ({ onSubmit, onCancel, projectId }) => {
           </label>
           <textarea
             {...register('description')}
-            className="w-full px-4 py-3 text-base transition-all duration-200 border-2 border-gray-200 resize-none rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
+            className="w-full px-4 py-4 text-base transition-all duration-200 border-2 border-gray-200 resize-none sm:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-100 focus:border-emerald-500"
             rows={4}
             placeholder="Ajoutez une description ou des notes supplémentaires (optionnel)"
           />
         </div>
 
-        {/* Boutons */}
-        <div className="flex flex-col justify-end gap-3 pt-6 border-t border-gray-200 sm:flex-row">
-          <button
-            type="button"
-            onClick={() => {
-              console.log('Cancel button clicked');
-              if (typeof onCancel === 'function') {
-                onCancel();
-              } else {
-                console.error('onCancel is not a function');
-              }
-            }}
-            className="w-full sm:w-auto px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200 text-base font-medium min-h-[48px]"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            className="w-full sm:w-auto px-6 py-3 text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-200 text-base font-medium min-h-[48px] shadow-lg hover:shadow-xl"
-          >
-            Ajouter le Matériau
-          </button>
+        {/* Boutons - Fixed at bottom on mobile */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 sm:relative sm:border-t-0 sm:bg-transparent sm:p-0">
+          <div className="flex flex-col justify-end gap-3 sm:flex-row sm:pt-6 sm:border-t sm:border-gray-200">
+            <button
+              type="button"
+              onClick={() => {
+                console.log('Cancel button clicked');
+                if (typeof onCancel === 'function') {
+                  onCancel();
+                } else {
+                  console.error('onCancel is not a function');
+                }
+              }}
+              className="w-full sm:w-auto px-6 py-4 sm:py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-gray-200 text-base font-medium min-h-[52px] sm:min-h-[48px]"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-6 py-4 sm:py-3 text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 active:bg-emerald-800 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-200 text-base font-medium min-h-[52px] sm:min-h-[48px] shadow-lg hover:shadow-xl"
+            >
+              Ajouter le Matériau
+            </button>
+          </div>
         </div>
       </form>
     </div>
   );
 };
+
 export default MaterialForm;

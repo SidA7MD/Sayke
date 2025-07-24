@@ -1,3 +1,4 @@
+// SummaryView.jsx - Mobile Responsive with Green Theme
 import React from 'react';
 import { DollarSign, Package, TrendingUp, PieChart } from 'lucide-react';
 
