@@ -1,4 +1,4 @@
-// ProjectForm.jsx - Final Version - Mobile Responsive with Budget & Dates Support
+// ProjectForm.jsx - Final Version with totalCost fix
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Building, MapPin, Calendar, FileText, X, DollarSign } from 'lucide-react';
@@ -42,6 +42,7 @@ const ProjectForm = ({ onSubmit, onCancel, initialData = null }) => {
     e?.preventDefault();
     
     console.log('📋 Form submitted with data:', data);
+    console.log('🔍 Initial data (before transform):', initialData);
     
     // Transform data to match backend expectations
     const transformedData = {
@@ -49,13 +50,37 @@ const ProjectForm = ({ onSubmit, onCancel, initialData = null }) => {
       location: data.emplacement,
       description: data.description || '',
       status: data.statut || 'planning',
-      budget: Number(data.budget) || 0,         // ✅ Budget
-      startDate: data.dateDebut || null,        // ✅ Start date
-      endDate: data.dateFin || null,            // ✅ End date
+      budget: Number(data.budget) || 0,
+      startDate: data.dateDebut || null,
+      endDate: data.dateFin || null,
       notes: data.notes || ''
     };
+
+    if (initialData) {
+      console.log('🔧 Updating existing project...');
+      console.log('🔍 All keys in initialData:', Object.keys(initialData));
+      console.log('🔍 initialData.totalCost:', initialData.totalCost);
+      
+      // Preserve the existing totalCost in the update
+      if (initialData.totalCost || initialData.coutTotal) {
+        transformedData.totalCost = initialData.totalCost || initialData.coutTotal;
+        console.log('💾 Preserving totalCost:', transformedData.totalCost);
+      }
+      
+      // Keep the project ID for the update
+      if (initialData._id) {
+        transformedData._id = initialData._id;
+      }
+      if (initialData.id) {
+        transformedData.id = initialData.id;
+      }
+    } else {
+      console.log('🆕 Creating new project');
+      // For new projects, totalCost starts at 0
+      transformedData.totalCost = 0;
+    }
     
-    console.log('💾 Transformed data for backend:', transformedData);
+    console.log('💾 Final transformed data for backend:', transformedData);
     
     // Validation
     if (!transformedData.name || !transformedData.location) {
@@ -320,6 +345,11 @@ const ProjectForm = ({ onSubmit, onCancel, initialData = null }) => {
                     <p className="text-sm text-emerald-700">
                       <DollarSign className="inline w-4 h-4 mr-1" />
                       <strong>Budget:</strong> {Number(watchBudget).toLocaleString()} MRU
+                    </p>
+                  )}
+                  {initialData && (initialData.totalCost > 0 || initialData.coutTotal > 0) && (
+                    <p className="text-sm text-blue-700">
+                      💰 <strong>Coût actuel:</strong> {Number(initialData.totalCost || initialData.coutTotal || 0).toLocaleString()} MRU
                     </p>
                   )}
                   {watchDateDebut && (
